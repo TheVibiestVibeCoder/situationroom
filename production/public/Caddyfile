@@ -1,0 +1,35 @@
+# Caddyfile for Situation Room SaaS
+# Place this in /etc/caddy/Caddyfile
+
+*.situationroom.eu, situationroom.eu {
+    root * /var/www/situation-room/public
+
+    # Enable gzip compression
+    encode gzip
+
+    # PHP-FPM configuration
+    php_fastcgi unix//run/php/php8.3-fpm.sock
+
+    # Serve static files directly
+    file_server
+
+    # Laravel pretty URLs
+    @notStatic {
+        not path *.css *.js *.png *.jpg *.jpeg *.gif *.ico *.svg *.woff *.woff2 *.ttf *.eot
+    }
+
+    try_files {path} /index.php?{query}
+
+    # Security headers
+    header {
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/situationroom-access.log
+    }
+}
